@@ -1,7 +1,8 @@
 //importa o modulo express
 var express = require('express');
 //Carrega o load
-var load = require('express-load');
+// var load = require('express-load'); NÃO VOU MAIS USAR
+var clientes = require('../routes/clientesRoutes');
 //Carrega body parser para tratar body das REQUESTS
 var bodyParser = require('body-parser');
 
@@ -12,10 +13,8 @@ module.exports = function() {
     app.set('view engine', 'ejs');
   //Configura funções que serão aplicadas aos requests na ordem estabelecida
     app.use(bodyParser.urlencoded({extended: true}));
-  //iinvoca o load passando os módulos a serem carregados em app
-  load('routes', {cwd: 'app'})
-      .then('infra')
-      .into(app);
+  //Configura as rotas do app
+    app.use('/clientes', clientes);
 
   //retorna a instância configurada
     return app;
