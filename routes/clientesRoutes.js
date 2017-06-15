@@ -52,7 +52,8 @@ router.post('/cadastra', function(req, res){
   let cpf = clienteCadastro.cpf;
   let telefone = clienteCadastro.telefone;
   let endereco = clienteEndereco.endereco;
-  
+  let cidade = clienteCadastrado.cidade;
+  let estado = clienteCadastrado.estado;
   // clientesDAO.cadastra(clienteCadastrado, function(err, results){
   //   if(err){
   //     res.send({erro: err});
