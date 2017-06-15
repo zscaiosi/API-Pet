@@ -6,7 +6,9 @@ module.exports = function(app){
     var clienteCadastrado = req.body;
 
     if( Object.getOwnPropertyNames(clienteCadastrado).length > 1 ){
+
       clientesArr.push(clienteCadastrado);
+      
       res.status(200).send(clientesArr);
     }else{
       res.status(404).send({erro: "Você não passou parâmetros suficientes!", esperado: "?login='seulogin'&password='suasenha'"});
