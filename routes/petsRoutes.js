@@ -3,7 +3,7 @@ var express = require('express');
 //instancia o router
 var router = express.Router();
 
-router.get('/procura', function(eq, res){
+router.get('/procura', function(req, res){
   //Importa e instancia connection e ClientesDAO
   var connection = require('../infra/ConnectionFactory')();
   var DAO = require('../infra/PetsDAO');
@@ -19,3 +19,18 @@ router.get('/procura', function(eq, res){
     }
   });
 });
+
+router.post('/cadastra', (req, res) => {
+  //ES6 arrow function
+  /*FAZER A CONEXÃO COM BD AQUI*/
+
+  let petCadastrado = req.body;
+  let infosAray = [];
+
+  console.log(petCadastrado)
+
+  res.send('OK');
+
+});
+
+module.exports = router;

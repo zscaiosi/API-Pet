@@ -46,6 +46,7 @@ router.post('/cadastra', function(req, res){
 
   var clienteCadastrado = req.body;
   console.log('req body = ', clienteCadastrado);
+  
   let nome = clienteCadastrado.nome;
   let email = clienteCadastrado.email;
   let dtNasc = clienteCadastro.dtNasc;
