@@ -7,7 +7,7 @@ let mongodbClient = require('mongodb').MongoClient;
 
 let mongoUrl = 'mongodb://mongocaio:m0ng0ldb*@clusteruno-shard-00-01-7t23t.mongodb.net:27017/petdevice?ssl=true&replicaSet=ClusterUno-shard-0&authSource=admin';
 
-router.get('/procurar', function (req, res) {
+router.get('/procurar', (req, res) => {
   try {
     let queryObj = req.query;
     console.log('query', queryObj);
@@ -15,7 +15,7 @@ router.get('/procurar', function (req, res) {
     if (queryObj.hasOwnProperty("_id")) {
       mongodbClient.connect(mongoUrl, (dbErr, db) => {
 
-        db.collection('clientes').findOne(queryObj, (findErr, result) => {
+        db.collection('dietas').findOne(queryObj, (findErr, result) => {
           
           if( findErr ){
             res.status(500).json({response: 'Transacion failed!'});
@@ -34,12 +34,12 @@ router.get('/procurar', function (req, res) {
   }
 });
 
-router.get('/listar', function (req, res) {
+router.get('/listar', (req, res) => {
   try {
     mongodbClient.connect(mongoUrl, (connErr, db) => {
       if (connErr) throw connErr;
       //Lista todos documentos em um array
-      db.collection("clientes").find().toArray((findErr, results) => {
+      db.collection("dietas").find().toArray((findErr, results) => {
         if (findErr) {
           res.status(500).json({ response: 'Transaction failed!' });
         } else {
@@ -54,7 +54,7 @@ router.get('/listar', function (req, res) {
   }
 });
 
-router.post('/cadastrar', function (req, res) {
+router.post('/cadastrar', (req, res) => {
   try {
     const payload = req.body;
     console.log("post payload=", payload);
@@ -62,7 +62,7 @@ router.post('/cadastrar', function (req, res) {
     mongodbClient.connect(mongoUrl, (connErr, db) => {
       if (connErr) throw connErr;
       //Insert do payload do post, sem options e com callback
-      db.collection('clientes').insert(payload, null, (dbErr, result) => {
+      db.collection('dietas').insert(payload, null, (dbErr, result) => {
         if (result.result.n > 0 && result.result.ok === 1) {
           res.status(200).json({ response: { ok: result.result.ok, inserted: result.result.n } });
         } else {
@@ -85,7 +85,7 @@ router.put('/atualizar', function (req, res) {
       if(connErr) throw connErr;
     //Faz update do cliente sem options e com callback
       if( payload.hasOwnProperty("_id") ){
-        db.collection('clientes').updateOne({_id: payload._id},
+        db.collection('dietas').updateOne({_id: payload._id},
           {
             $set: payload
           },
