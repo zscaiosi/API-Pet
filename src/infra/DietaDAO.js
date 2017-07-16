@@ -4,9 +4,10 @@ let mongodbClient = require('mongodb').MongoClient;
 let mongoUrl = 'mongodb://mongocaio:m0ng0ldb*@clusteruno-shard-00-01-7t23t.mongodb.net:27017/petdevice?ssl=true&replicaSet=ClusterUno-shard-0&authSource=admin';
 
 function DietasDAO() {
+	
+}
 
-	//Verifica se há alguma dieta no momento
-	let checkDiet = function () {
+DietasDAO.prototype.checkDiets = function () {
 		let now = new Date();
 		//Checa se há alguma dieta para agora
 		mongodbClient.connect(mongoUrl, function (connErr, db) {
@@ -35,8 +36,6 @@ function DietasDAO() {
 			db.close();
 		});
 	};
-
-}
 
 DietasDAO.prototype.registerActivity = function (deviceId, activityJson) {
 		//Salva no banco a nova atividade
