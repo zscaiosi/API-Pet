@@ -12,6 +12,10 @@ var app = config();
 //Instancia os subscribers logo no início
 let mqttSubFeed = new MqttSubsController('localhost', 'device/racao/pote1/atividades/rex');
 
+const diets = new DietasDAO();
+
+setInterval(() => {diets.checkDiets()}, 5000);
+
 app.listen(5000, function () {
   console.log('Servidor rodando!');
 });
