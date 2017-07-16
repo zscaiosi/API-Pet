@@ -2,34 +2,16 @@
 var express = require('express');
 //instancia o router
 var router = express.Router();
+//importa mongodb client
+let mongodbClient = require('mongodb').MongoClient;
 
-router.get('/procura', function(req, res){
-  //Importa e instancia connection e ClientesDAO
-  var connection = require('../infra/ConnectionFactory')();
-  var DAO = require('../infra/PetsDAO');
-  var petsDAO = new DAO(connection);
+let mongoUrl = 'mongodb://mongocaio:m0ng0ldb*@clusteruno-shard-00-01-7t23t.mongodb.net:27017/petdevice?ssl=true&replicaSet=ClusterUno-shard-0&authSource=admin';
 
-  var petProcurado = req.query;
-
-  petsDAO.procura(function(err, results){
-    if(err){
-      res.send({erro: err});
-    }else{
-      res.send({lista: results});
-    }
-  });
+router.get('/procurar', function(req, res){
+ 
 });
 
-router.post('/cadastra', (req, res) => {
-  //ES6 arrow function
-  /*FAZER A CONEXÃO COM BD AQUI*/
-
-  let petCadastrado = req.body;
-  let infosAray = [];
-
-  console.log(petCadastrado)
-
-  res.send('OK');
+router.post('/cadastrar', (req, res) => {
 
 });
 
