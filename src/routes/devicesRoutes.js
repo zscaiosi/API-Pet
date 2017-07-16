@@ -4,8 +4,7 @@ var express = require('express');
 var router = express.Router();
 //importa mongodb client
 let mongodbClient = require('mongodb').MongoClient;
-
-let mongoUrl = 'mongodb://mongocaio:m0ng0ldb*@clusteruno-shard-00-01-7t23t.mongodb.net:27017/petdevice?ssl=true&replicaSet=ClusterUno-shard-0&authSource=admin';
+const mongoUrl = require('../config/endpoints.json');
 
 router.get('/procurar', (req, res) => {
   try {
@@ -13,7 +12,7 @@ router.get('/procurar', (req, res) => {
     console.log('query', queryObj);
 
     if (queryObj.hasOwnProperty("_id")) {
-      mongodbClient.connect(mongoUrl, (dbErr, db) => {
+      mongodbClient.connect(mongoUrl.mongodbUrl, (dbErr, db) => {
 
         db.collection('devices').findOne(queryObj, (findErr, result) => {
           
@@ -36,7 +35,7 @@ router.get('/procurar', (req, res) => {
 
 router.get('/listar', (req, res) => {
   try {
-    mongodbClient.connect(mongoUrl, (connErr, db) => {
+    mongodbClient.connect(mongoUrl.mongodbUrl, (connErr, db) => {
       if (connErr) throw connErr;
       //Lista todos documentos em um array
       db.collection("devices").find().toArray((findErr, results) => {
@@ -59,7 +58,7 @@ router.post('/cadastrar', (req, res) => {
     const payload = req.body;
     console.log("post payload=", payload);
 
-    mongodbClient.connect(mongoUrl, (connErr, db) => {
+    mongodbClient.connect(mongoUrl.mongodbUrl, (connErr, db) => {
       if (connErr) throw connErr;
       //Insert do payload do post, sem options e com callback
       db.collection('devices').insert(payload, null, (dbErr, result) => {
@@ -81,7 +80,7 @@ router.put('/atualizar', function (req, res) {
     const payload = req.body;
     console.log("put payload=",payload);
 
-    mongodbClient.connect(mongoUrl, (connErr, db) => {
+    mongodbClient.connect(mongoUrl.mongodbUrl, (connErr, db) => {
       if(connErr) throw connErr;
     //Faz update do cliente sem options e com callback
       if( payload.hasOwnProperty("_id") ){

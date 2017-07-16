@@ -1,7 +1,7 @@
 let MqttPubsController = require('../controllers/mqttPubsController.js');
 let mongodbClient = require('mongodb').MongoClient;
-
-let mongoUrl = 'mongodb://mongocaio:m0ng0ldb*@clusteruno-shard-00-01-7t23t.mongodb.net:27017/petdevice?ssl=true&replicaSet=ClusterUno-shard-0&authSource=admin';
+const mongoUrl = require('../config/endpoints.json').mongodbUrl;
+const mqttUrl = require('../config/endpoints.json').mqttAws;
 
 function DietasDAO() {
 	
@@ -21,7 +21,7 @@ DietasDAO.prototype.checkDiets = function () {
 
 					item.dietas.map((dieta, index) => {
 						console.log("now", now);
-						console.log(now > dieta.segundo_horario, 'seg', dieta.segundo_horario);
+
 						if (dieta.primeiro_horario === now || dieta.segundo_horario === now) {
 
 							let mqttPub = new MqttPubsController('localhost', 'device/racao/pote1/alimentar/rex');

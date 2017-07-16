@@ -15,7 +15,7 @@ function MqttSubsController(url, t){
         let activity = JSON.parse(message.toString());
 
         console.log("activity", activity);
-
+        //Instancia DietaDAO e invoca a função que atualiza o array de atividades do documento
         if( topic === "device/racao/pote1/atividades/rex" ){
             const dietaActivity = new DietaDAO();
             dietaActivity.registerActivity(activity.id, activity.atividade);
