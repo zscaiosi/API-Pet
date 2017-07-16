@@ -1,5 +1,5 @@
 let mqtt = require('mqtt');
-var DietaDAO = require('../infra/DietaDAO');
+var DietaDAO = require('./DietaDAO');
 
 function MqttSubsController(url, t){
     this._url = url;

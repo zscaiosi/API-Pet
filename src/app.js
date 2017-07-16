@@ -1,5 +1,5 @@
 
-let DietasDAO = require('./infra/DietaDAO');
+let DietasDAO = require('./controllers/DietaDAO');
 //Carrega a função controller para se conectar a um MQTT BROKER
 let MqttSubsController = require('./controllers/mqttSubsController');
 let MqttPubsController = require('./controllers/mqttPubsController');
