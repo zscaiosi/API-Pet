@@ -11,14 +11,14 @@ function MqttSubsController(url, t){
 
     this._mqttClient.on('message', (topic, message) => {
         console.log('Received--->', message.toString(), 'from topic', topic);
-        console.log("teste", JSON.parse(String(message)));
-        //let activity = JSON.parse(message.toString());
+        
+        let activity = JSON.parse(message.toString());
 
-        //console.log("activity", activity);
+        console.log("activity", activity);
 
         if( topic === "device/racao/pote1/atividades/rex" ){
             const dietaActivity = new DietaDAO();
-            // dietaActivity.registerActivity(activity.id, activity.atividade);
+            dietaActivity.registerActivity(activity.id, activity.atividade);
         }
     });
 }
