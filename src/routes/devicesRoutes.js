@@ -111,4 +111,40 @@ router.put('/atualizar', function (req, res) {
   }
 });
 
+router.put('/associar/dieta', (req, res) => {
+  try{
+    const payload = req.body;
+    console.log("put payload de /associar/dieta =", typeof payload.device);
+
+    mongodbClient.connect(mongoUrl.mongodbUrl, (connErr, db) => {
+      if(connErr) throw connErr;
+    //Insert desta dieta no documento do device correspondente
+      if( payload.hasOwnProperty("device") ){
+        db.collection('devices').updateOne({_id: Number(payload.device)},
+          {
+            $push: {
+              dietas: payload
+            }
+          },
+          null,
+          //Callback
+          (updateErr, result) => {
+            if( updateErr ){
+              res.status(500).json({ response: 'Transaction failed!', data: updateErr });
+            }else{
+              res.status(200).json({ ok: result.result.ok, response: {
+                scanned: result.result.n, modified: result.result.nModified
+              } });
+            }
+          });
+      }else{
+        res.status(400).json({ response: 'Associação possível apenas por device.' });
+      }
+    });
+  }catch(exception){
+    console.log('exceptio', exception);
+    throw exception;
+  }
+});
+
 module.exports = router;

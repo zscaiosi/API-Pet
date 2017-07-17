@@ -62,6 +62,12 @@ router.post('/cadastrar', (req, res) => {
       if (connErr) throw connErr;
       //Insert do payload do post, sem options e com callback
       db.collection('pets').insert(payload, null, (dbErr, result) => {
+        //Update do device com o novo pet
+        db.collection("devices").updateOne({_id: Number(payload.device)},
+          {
+            $set: { pet_alimentado: Number(payload._id)}
+          }
+        );
         if (result.result.n > 0 && result.result.ok === 1) {
           res.status(200).json({ response: { ok: result.result.ok, inserted: result.result.n } });
         } else {
