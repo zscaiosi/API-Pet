@@ -14,8 +14,8 @@ let mqttSubFeed = new MqttSubsController('localhost', 'device/racao/pote1/ativid
 
 const diets = new DietasDAO();
 
-setInterval(() => {diets.checkDiets()}, 5000);
+setInterval(() => {diets.checkDiets()}, 360000);
 
 app.listen(5000, function () {
-  console.log('Servidor rodando!');
+  console.log('Servidor rodando! em:', 5000);
 });

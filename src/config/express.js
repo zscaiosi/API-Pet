@@ -4,6 +4,9 @@ var express = require('express');
 // var load = require('express-load'); NÃO VOU MAIS USAR
 var clientes = require('../routes/clientesRoutes');
 var pets = require('../routes/petsRoutes');
+const devices = require('../routes/devicesRoutes');
+const dietas = require('../routes/dietasRoutes');
+
 //Carrega body parser para tratar body das REQUESTS
 var bodyParser = require('body-parser');
 
@@ -17,6 +20,8 @@ module.exports = function() {
   //Configura as rotas do app
     app.use('/clientes', clientes);
     app.use('/pets', pets);
+    app.use('/devices', devices);
+    app.use('/dietas', dietas);
 
   //retorna a instância configurada
     return app;
