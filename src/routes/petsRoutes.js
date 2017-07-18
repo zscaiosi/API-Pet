@@ -14,22 +14,47 @@ router.get('/procurar', function(req, res){
     if (queryObj.hasOwnProperty("_id")) {
       mongodbClient.connect(mongoUrl.mongodbUrl, (dbErr, db) => {
 
-        db.collection('pets').findOne(queryObj, (findErr, result) => {
+        db.collection('pets').findOne(queryObj, (findErr, findResult) => {
           
           if( findErr ){
-            res.status(500).json({response: 'Transacion failed!'});
+            res.status(500).json({response: 'Transacion failed!', error: findErr});
           }else{
-            res.status(200).json({response: 'ok', data: result});
+            res.status(200).json({response: 'ok', data: findResult});
           }
           db.close();
         });
 
       });
     } else {
-      res.status(400).json({ response: 'Busca possível apenas por _id.' });
+      res.status(400).json({ response: 'Busca possível apenas por _id.', query: queryObj });
     }
   } catch (exception) {
     throw exception;
+  }
+});
+
+router.get('/procurar/deviceAssociado', (req, res) => {
+  try{
+    let queryObj = req.query;
+    console.log('q: ',queryObj)
+
+    if( queryObj.hasOwnProperty("device_id") ){
+      mongodbClient.connect(mongoUrl.mongodbUrl, (dbErr, db) => {
+        db.collection('pets').findOne({ device: queryObj.device_id }, (findErr, findResult) => {
+          if( findErr ){
+            res.status(500).json({response: 'Find failed!', error: findErr});
+          }else{
+            res.status(200).json({response: 'ok', data: findResult});
+          }
+        });
+        db.close();
+      });
+    }else{
+      res.status(400).json({response: 'Informe um device_id para realizar a busca!', query: queryObj})
+    }
+  }catch(exception){
+    throw exception
+    console.log('esception', exception);
   }
 });
 
@@ -66,10 +91,24 @@ router.post('/cadastrar', (req, res) => {
         db.collection("devices").updateOne({_id: Number(payload.device)},
           {
             $set: { pet_alimentado: Number(payload._id)}
+          },
+          null,
+          (updateErr, updateResult) => {
+            if( updateErr ){
+              res.status(500).json({response: 'Update failed!'});
+            }else{
+              res.status(200).json({ update: {
+                ok: updateResult.result.ok, response: {
+                  scanned: updateResult.result.scanned, modified: updateResult.result.nModified
+                }
+              }, insert: {
+                response: { ok: result.result.ok, inserted: result.result.n }
+              } });
+            }
           }
         );
         if (result.result.n > 0 && result.result.ok === 1) {
-          res.status(200).json({ response: { ok: result.result.ok, inserted: result.result.n } });
+          //res.status(200).json({ response: { ok: result.result.ok, inserted: result.result.n } });
         } else {
           res.status(500).json({ repsonse: { ok: result.result.ok, data: "Transaction failed!" } });
         }

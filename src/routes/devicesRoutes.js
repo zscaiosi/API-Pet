@@ -33,6 +33,33 @@ router.get('/procurar', (req, res) => {
   }
 });
 
+router.get('/procurar/clienteAssociado', (req, res) => {
+  try{
+    let queryObj = req.query;
+    //Se a query string possuir cliente_id, abre a conexão e faz a consulta
+    if( queryObj.hasOwnProperty("cliente_id") ){
+      mongodbClient.connect(mongoUrl.mongodbUrl, (dbErr, db) => {
+        if(dbErr) throw dbErr;
+
+        db.collection("devices").findOne({ cliente: queryObj.cliente_id }, (findErr, findResult) => {
+          if( findErr ){
+            res.status(500).json({ response: 'Find failed!', error: findErr });
+          }else{
+            res.status(200).json({ response: 'ok', data: findResult });
+          }
+          db.close();
+        });
+      });
+    }else{
+    //Caso não tenha cliente_id retona bad request
+      res.status(400).json({ response: 'Informe um parâmetro cliente_id para a busca!' });
+    }
+  }catch(exception){
+    throw exception;
+    console.log('excep', exception);
+  }
+})
+
 router.get('/listar', (req, res) => {
   try {
     mongodbClient.connect(mongoUrl.mongodbUrl, (connErr, db) => {
@@ -140,6 +167,7 @@ router.put('/associar/dieta', (req, res) => {
       }else{
         res.status(400).json({ response: 'Associação possível apenas por device.' });
       }
+      db.close();
     });
   }catch(exception){
     console.log('exceptio', exception);
