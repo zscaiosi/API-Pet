@@ -63,42 +63,47 @@ router.post('/cadastrar', (req, res) => {
 
     mongodbClient.connect(mongoUrl.mongodbUrl, (connErr, db) => {
       if (connErr) throw connErr;
-      //Insert do payload do post, sem options e com callback
-      db.collection('dietas').insert(payload, null, (dbErr, insertResult) => {
-        if (insertResult.result.n > 0 && insertResult.result.ok === 1) {
-          //Update do device com a nova dieta
-          db.collection('devices').updateOne({_id: Number(payload.device)},
-            {
-              $push: {
-                dietas: payload
-              }
-            },
-            null,
-            //Update Callback
-            (updateErr, updateResult) => {
-              if( updateErr ){
-                res.status(500).json({ update: {
-                  response: 'Update failed!', data: updateErr
-                } });
-              }else{
-                res.status(200).json({ insert: {
-                  ok: insertResult.result.ok, inserted: insertResult.result.n
-                }, update: {
-                  ok: updateResult.result.ok, response: {
-                    scanned: updateResult.result.n, modified: updateResult.result.nModified
-                  }
-                } });
-              }
-          });
-          //res.status(200).json({ response: { ok: insertResult.result.ok, inserted: insertResult.result.n } });
-        } else {
-          res.status(500).json({ insert: {
-            repsonse: { ok: insertResult.result.ok, data: "Insert failed!" }
-          } });
-        }
-
+      //Verifica se há campo _id
+      if( payload.hasOwnProperty("_id") ){
+        //Insert do payload do post, sem options e com callback
+        db.collection('dietas').insert(payload, null, (dbErr, insertResult) => {
+          if (insertResult.result.n > 0 && insertResult.result.ok === 1) {
+            //Update do device com a nova dieta
+            db.collection('devices').updateOne({_id: Number(payload.device)},
+              {
+                $push: {
+                  dietas: payload
+                }
+              },
+              null,
+              //Update Callback
+              (updateErr, updateResult) => {
+                if( updateErr ){
+                  res.status(500).json({ update: {
+                    response: 'Update failed!', data: updateErr
+                  } });
+                }else{
+                  res.status(200).json({ insert: {
+                    ok: insertResult.result.ok, inserted: insertResult.result.n
+                  }, update: {
+                    ok: updateResult.result.ok, response: {
+                      scanned: updateResult.result.n, modified: updateResult.result.nModified
+                    }
+                  } });
+                }
+            });
+            //res.status(200).json({ response: { ok: insertResult.result.ok, inserted: insertResult.result.n } });
+          } else {
+            res.status(500).json({ insert: {
+              repsonse: { ok: insertResult.result.ok, data: "Insert failed!" }
+            } });
+          }
+          db.close();
+        });
+      }else{
+        res.status(400).json({response: 'Precisa de uma chave _id!'});
         db.close();
-      });
+      }
     });
   } catch (exception) {
     throw exception;

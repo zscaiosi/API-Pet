@@ -60,15 +60,22 @@ router.post('/cadastrar', function (req, res) {
 
     mongodbClient.connect(mongoUrl.mongodbUrl, (connErr, db) => {
       if (connErr) throw connErr;
-      //Insert do payload do post, sem options e com callback
-      db.collection('clientes').insert(payload, null, (dbErr, result) => {
-        if (result.result.n > 0 && result.result.ok === 1) {
-          res.status(200).json({ response: { ok: result.result.ok, inserted: result.result.n } });
-        } else {
-          res.status(500).json({ repsonse: { ok: result.result.ok, data: "Transaction failed!" } });
-        }
+      //Verifica se tem um campo _id
+      if( payload.hasOwnProperty("_id") ){
+        //Insert do payload do post, sem options e com callback
+        db.collection('clientes').insert({payload, _id: payload.cpf}, null, (dbErr, result) => {
+          console.log('erro db insert cli', dbErr)
+          if (result.result.n > 0 && result.result.ok === 1 && dbErr === null) {
+            res.status(200).json({ response: { ok: result.result.ok, inserted: result.result.n } });
+          } else {
+            res.status(500).json({ repsonse: { ok: result.result.ok, data: "Transaction failed!" } });
+          }
+          db.close();
+        });
+      }else{
+        res.status(400).json({response: 'Precisa de uma chave _id, que deve ser o CPF do cliente!'});
         db.close();
-      });
+      }
     });
   } catch (exception) {
     throw exception;
@@ -94,7 +101,7 @@ router.put('/atualizar', function (req, res) {
               res.status(500).json({ response: 'Transaction failed!', data: updateErr });
             }else{
               res.status(200).json({ ok: result.result.ok, response: {
-                scanned: result.result.n, modified: result.result.nModified
+                scanned: result.result, modified: result.result.nModified
               } });
             }
             db.close();

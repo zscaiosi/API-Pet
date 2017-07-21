@@ -85,35 +85,41 @@ router.post('/cadastrar', (req, res) => {
 
     mongodbClient.connect(mongoUrl.mongodbUrl, (connErr, db) => {
       if (connErr) throw connErr;
-      //Insert do payload do post, sem options e com callback
-      db.collection('pets').insert(payload, null, (dbErr, result) => {
-        //Update do device com o novo pet
-        db.collection("devices").updateOne({_id: Number(payload.device)},
-          {
-            $set: { pet_alimentado: Number(payload._id)}
-          },
-          null,
-          (updateErr, updateResult) => {
-            if( updateErr ){
-              res.status(500).json({response: 'Update failed!'});
-            }else{
-              res.status(200).json({ update: {
-                ok: updateResult.result.ok, response: {
-                  scanned: updateResult.result.scanned, modified: updateResult.result.nModified
-                }
-              }, insert: {
-                response: { ok: result.result.ok, inserted: result.result.n }
-              } });
+      //Verifica se há _id
+      if( payload.hasOwnProperty("_id") ){
+        //Insert do payload do post, sem options e com callback
+        db.collection('pets').insert(payload, null, (dbErr, result) => {
+          //Update do device com o novo pet
+          db.collection("devices").updateOne({_id: Number(payload.device)},
+            {
+              $set: { pet_alimentado: Number(payload._id)}
+            },
+            null,
+            (updateErr, updateResult) => {
+              if( updateErr ){
+                res.status(500).json({response: 'Update failed!'});
+              }else{
+                res.status(200).json({ update: {
+                  ok: updateResult.result.ok, response: {
+                    scanned: updateResult.result.scanned, modified: updateResult.result.nModified
+                  }
+                }, insert: {
+                  response: { ok: result.result.ok, inserted: result.result.n }
+                } });
+              }
             }
+          );
+          if (result.result.n > 0 && result.result.ok === 1) {
+            //res.status(200).json({ response: { ok: result.result.ok, inserted: result.result.n } });
+          } else {
+            res.status(500).json({ repsonse: { ok: result.result.ok, data: "Transaction failed!" } });
           }
-        );
-        if (result.result.n > 0 && result.result.ok === 1) {
-          //res.status(200).json({ response: { ok: result.result.ok, inserted: result.result.n } });
-        } else {
-          res.status(500).json({ repsonse: { ok: result.result.ok, data: "Transaction failed!" } });
-        }
+          db.close();
+        });   
+      }else{
+        res.status(400).json({ response: 'Precisa de _id!'});
         db.close();
-      });
+      }
     });
   } catch (exception) {
     throw exception;
