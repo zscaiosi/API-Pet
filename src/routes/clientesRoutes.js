@@ -5,6 +5,33 @@ var router = express.Router();
 //importa mongodb client
 let mongodbClient = require('mongodb').MongoClient;
 const mongoUrl = require('../config/endpoints.json');
+//Passport para autenticação
+//const passport = require('passport');
+const ValidateLoginDAO = require('../controllers/ValidateLoginDAO');
+// router.post('/login',
+//   passport.authenticate('local', {
+//     session: false,
+//     failureFlash: true
+//   }),
+//   (req, res) => {
+//     console.log('autenticado ->', req.username);
+//     res.json({validado: 'ok'})
+// });
+
+router.post('/login', (req, res) => {
+  const body = req.body;
+  const validate = new ValidateLoginDAO();
+
+  validate.isValidUser(body, (findErr, result) => {
+    if( result ){
+      res.status(200).json({response: 'authenticated'});
+    }else if( findErr ){
+      res.status(500).json({response: 'erro', error: findErr});
+    }else if( result === null ){
+      res.status(500).json({response: 'not found', result: result});
+    }
+  });
+});
 
 router.get('/procurar', function (req, res) {
   try {

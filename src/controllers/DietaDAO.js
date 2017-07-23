@@ -12,9 +12,10 @@ DietasDAO.prototype.checkDiets = function () {
 		//Checa se há alguma dieta para agora
 		mongodbClient.connect(mongoUrl, function (connErr, db) {
 			if (connErr) throw connErr;
+			console.log('CONECTOU!')
 			//Transforma o Cusor em um array
 			db.collection('devices').find().toArray(function (dbErr, items) {
-				if (dbErr) throw dbErr;
+				if (dbErr) {console.log('dbErr', dbErr)}
 
 				items.map(function (item, index) {
 					console.log(`Retorno ${index}-->>`, item);
@@ -24,7 +25,7 @@ DietasDAO.prototype.checkDiets = function () {
 
 						if (dieta.primeiro_horario === now || dieta.segundo_horario === now) {
 
-							let mqttPub = new MqttPubsController('localhost', 'device/racao/pote1/alimentar/rex');
+							let mqttPub = new MqttPubsController(mqttUrl, 'device/racao/pote1/alimentar/rex');
 							mqttPub.pub('device/racao/pote1/alimentar/rex', JSON.stringify({ aberto: true }));
 						} else {
 							console.log("Agora, ", now, "nenhuma dieta programada...");
