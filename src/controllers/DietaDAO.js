@@ -74,7 +74,7 @@ DietasDAO.prototype.registerActivity = function (deviceId, activityJson) {
 					}
 				}///home/ubuntu/Documents/logs_nodejs_petdevice.txt
 //Cria ou insere no arquivo o log da mensagem incorreta				
-				fs.appendFile("/home/caio/Desktop/logs_nodejs_petdevice.txt", JSON.stringify(logObj)+"\n", (appendErr) => {
+				fs.appendFile("/home/ubuntu/Documents/logs_nodejs_petdevice.txt", JSON.stringify(logObj)+"\n", (appendErr) => {
 					if( appendErr ){
 						console.log("error: ", appendErr);
 					}else{
