@@ -15,23 +15,26 @@ DietasDAO.prototype.checkDiets = function () {
 			if (connErr) throw connErr;
 			console.log('CONECTOU!')
 			//Transforma o Cusor em um array
-			db.collection('devices').find().toArray(function (dbErr, items) {
+			db.collection('dietas').find().toArray(function (dbErr, items) {
 				if (dbErr) {console.log('dbErr', dbErr)}
 
+				console.log("items", items);
+
 				items.map(function (item, index) {
-					console.log(`Retorno ${index}-->>`, item);
+					console.log(`Item ${index}-->>`, item);
 
-					item.dietas.map((dieta, index) => {
-						console.log("now", now);
+					item.horarios.map((horario, index) => {
 
-						if (dieta.primeiro_horario === now || dieta.segundo_horario === now) {
+						if( horario.slice(0, 5) === String(now).slice(16, 21) ){
+							console.log("----------alimentar!------------", horario.slice(0, 5), String(now).slice(16, 21));
 
-							let mqttPub = new MqttPubsController(mqttUrl, 'device/racao/pote1/alimentar/rex');
-							mqttPub.pub('device/racao/pote1/alimentar/rex', JSON.stringify({ aberto: true }));
-						} else {
-							console.log("Agora, ", now, "nenhuma dieta programada...");
-							return;
+							let mqttPub = new MqttPubsController(mqttUrl, `device/racao/${item.device}/alimentar/rex`);
+							mqttPub.pub(`device/racao/${item.device}/alimentar/pet`, JSON.stringify({ aberto: true }));
+
+						}else{
+							console.log("diferente...", horario.slice(0, 5), String(now).slice(16, 21), "\n -----------------------");
 						}
+
 					});
 				});
 			});
