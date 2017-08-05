@@ -19,6 +19,7 @@
     "mqtt": "^2.9.0",
     "mysql": "^2.13.0",
     "mysql2": "^1.2.0",
+    "nodemailer": "^4.0.1",
     "nodemon": "^1.11.0",
     "passport": "^0.3.2",
     "passport-local": "^1.0.0",
