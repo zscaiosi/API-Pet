@@ -11,7 +11,7 @@ let endpoint = require('./config/endpoints.json');
 var app = config();
 
 //Instancia os subscribers logo no início
-let mqttSubFeed = new MqttSubsController(endpoint.mqttAws, 'device/racao/pote1/atividades/rex');
+let mqttSubFeed = new MqttSubsController(endpoint.mqttAws, 'device/racao/+/atividades/+');
 
 const diets = new DietasDAO();
 

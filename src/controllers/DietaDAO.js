@@ -2,6 +2,7 @@ let MqttPubsController = require('../controllers/mqttPubsController.js');
 let mongodbClient = require('mongodb').MongoClient;
 const mongoUrl = require('../config/endpoints.json').mongodbUrl;
 const mqttUrl = require('../config/endpoints.json').mqttAws;
+const fs = require('fs');
 
 function DietasDAO() {
 	
@@ -43,18 +44,42 @@ DietasDAO.prototype.registerActivity = function (deviceId, activityJson) {
 		mongodbClient.connect(mongoUrl, function (connErr, db) {
 			if (connErr) throw connErr;
 
-			db.collection("devices").updateOne({ _id: deviceId },
-				{
-					$push: {
-						atividades: activityJson
+			console.log(deviceId, activityJson);
+
+			if( typeof deviceId !== 'undefined' && typeof activityJson !== 'undefined' ){
+				db.collection("devices").updateOne({ _id: deviceId },
+					{
+						$push: {
+							atividades: activityJson
+						}
+					}, (updateErr, updateResult) => {
+						if( updateErr ){
+							console.log("updateErr", updateErr);
+						}if( updateResult.result.ok === 1 ){
+							console.log("Atualizado com sucesso!", updateResult.result);
+						}
+				});
+			}else{
+//Objeto descritivo do erro				
+				let logObj = {
+					erro: 1,
+					description: "Não há deviceId AND activityJson",
+					date: new Date(),
+					data: {
+						deviceId: deviceId,
+						activityJson: activityJson ? activityJson : 'undefined'
 					}
-				}, (updateErr, result) => {
-					if(updateErr) throw updateErr;
-					
-					if( result.result.ok === 1 ){
-						console.log("Atualizado com sucesso!");
+				}///home/ubuntu/Documents/logs_nodejs_petdevice.txt
+//Cria ou insere no arquivo o log da mensagem incorreta				
+				fs.appendFile("/home/caio/Desktop/logs_nodejs_petdevice.txt", JSON.stringify(logObj)+"\n", (appendErr) => {
+					if( appendErr ){
+						console.log("error: ", appendErr);
+					}else{
+						console.log("Logged...");
 					}
 				});
+			}
+
 			db.close();
 		});
 	}
