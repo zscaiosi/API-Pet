@@ -90,11 +90,11 @@ router.post('/cadastrar', function (req, res) {
       //Verifica se tem um campo _id
       if( payload.hasOwnProperty("_id") ){
         //Insert do payload do post, sem options e com callback
-        db.collection('clientes').insert({payload, _id: payload.cpf}, null, (insertErr, result) => {
+        db.collection('clientes').insert(payload, null, (insertErr, result) => {
           console.log('erro db insert cli', insertErr)
           if ( insertErr ) {
             res.status(500).json({ response: "erro", error: insertErr });
-          }else if (result.result.n > 0 && result.result.ok === 1 && dbErr === null) {
+          }else if (result.result.n > 0 && result.result.ok === 1 && insertErr === null) {
             res.status(200).json({ response: { ok: result.result.ok, inserted: result.result.n } });
           } else {
             res.status(500).json({ repsonse: { ok: result.result.ok, data: "Transaction failed!" } });

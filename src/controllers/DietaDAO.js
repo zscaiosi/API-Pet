@@ -25,7 +25,7 @@ DietasDAO.prototype.checkDiets = function () {
 //Se hora e minutos forem iguais e último horário de alimentação for diferente da hora atual, alimenta.
 						if( horario.slice(0, 5) === String(now).slice(16, 21) && String(this._lastTime).slice(0, 5) !== String(now).slice(16, 21) ){
 							console.log("----------alimentar!------------", horario.slice(0, 5), String(now).slice(16, 21));
-
+//Controlando o horário da alimentação para impedir que acione duas vezes no memso minuto o device
 							this._lastTime = horario;
 
 							let mqttPub = new MqttPubsController(mqttUrl, `device/racao/${item.device}/alimentar/rex`);
