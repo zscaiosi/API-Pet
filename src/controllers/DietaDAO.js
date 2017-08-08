@@ -5,7 +5,7 @@ const mqttUrl = require('../config/endpoints.json').mqttAws;
 const fs = require('fs');
 
 function DietasDAO() {
-	
+	this._lastTime = '';
 }
 
 DietasDAO.prototype.checkDiets = function () {
@@ -13,26 +13,26 @@ DietasDAO.prototype.checkDiets = function () {
 		//Checa se há alguma dieta para agora
 		mongodbClient.connect(mongoUrl, function (connErr, db) {
 			if (connErr) throw connErr;
-			console.log('CONECTOU!')
+			console.log("LAST TIME FEED", this._lastTime);
 			//Transforma o Cusor em um array
 			db.collection('dietas').find().toArray(function (dbErr, items) {
 				if (dbErr) {console.log('dbErr', dbErr)}
-
-				console.log("items", items);
 
 				items.map(function (item, index) {
 					console.log(`Item ${index}-->>`, item);
 
 					item.horarios.map((horario, index) => {
-
-						if( horario.slice(0, 5) === String(now).slice(16, 21) ){
+//Se hora e minutos forem iguais e último horário de alimentação for diferente da hora atual, alimenta.
+						if( horario.slice(0, 5) === String(now).slice(16, 21) && String(this._lastTime).slice(0, 5) !== String(now).slice(16, 21) ){
 							console.log("----------alimentar!------------", horario.slice(0, 5), String(now).slice(16, 21));
 
+							this._lastTime = horario;
+
 							let mqttPub = new MqttPubsController(mqttUrl, `device/racao/${item.device}/alimentar/rex`);
-							mqttPub.pub(`device/racao/${item.device}/alimentar/pet`, JSON.stringify({ aberto: true }));
+							mqttPub.pub(`device/racao/${item.device}/alimentar/pet`, JSON.stringify({ aberto: true }), item.device);
 
 						}else{
-							console.log("diferente...", horario.slice(0, 5), String(now).slice(16, 21), "\n -----------------------");
+							console.log("----------------------diferente...----------------------", horario.slice(0, 5), String(now).slice(16, 21), "\n");
 						}
 
 					});
@@ -74,13 +74,13 @@ DietasDAO.prototype.registerActivity = function (deviceId, activityJson) {
 					}
 				}///home/ubuntu/Documents/logs_nodejs_petdevice.txt
 //Cria ou insere no arquivo o log da mensagem incorreta				
-				fs.appendFile("/home/ubuntu/Documents/logs_nodejs_petdevice.txt", JSON.stringify(logObj)+"\n", (appendErr) => {
-					if( appendErr ){
-						console.log("error: ", appendErr);
-					}else{
-						console.log("Logged...");
-					}
-				});
+				// fs.appendFile("/home/ubuntu/Documents/logs_nodejs_petdevice.txt", JSON.stringify(logObj)+"\n", (appendErr) => {
+				// 	if( appendErr ){
+				// 		console.log("error: ", appendErr);
+				// 	}else{
+				// 		console.log("Logged...");
+				// 	}
+				// });
 			}
 
 			db.close();

@@ -1,15 +1,6 @@
 let mqtt = require('mqtt');
 const fs = require('fs');
-const mailer = require('nodemailer');
-
-const nodeTransporter = mailer.createTransport({
-	service: 'gmail',
-	auth: {
-		user: 'zscaio.si@gmail.com',
-		pass: 'gm4il2911925Bcaio'
-	}
-});
-
+const Cliente = require('../model/Cliente');
 
 function MqttPubsController(url, t) {
 	this.url = url;
@@ -22,7 +13,7 @@ function MqttPubsController(url, t) {
 
 }
 
-MqttPubsController.prototype.pub = function (t, message) {
+MqttPubsController.prototype.pub = function (t, message, deviceId) {
 	this.mqttClient.publish(t, message, null, (pubErr) => {
 		if (pubErr) { console.log(pubErr); }
 
@@ -32,30 +23,17 @@ MqttPubsController.prototype.pub = function (t, message) {
 			date: new Date()
 		}
 //Loga as mensagens publicadas
-		fs.appendFile("/home/ubuntu/Documents/logs_mqtt_pubs_nodejs_petdevice.txt", JSON.stringify(logObj) + "\n", (appendErr) => {
-			if (appendErr) {
-				console.log(appendErr);
-			} else {
-				console.log("Logged..."+JSON.stringify(logObj), new Date());
-			}
-		});
+		// fs.appendFile("/home/ubuntu/Documents/logs_mqtt_pubs_nodejs_petdevice.txt", JSON.stringify(logObj) + "\n", (appendErr) => {
+		// 	if (appendErr) {
+		// 		console.log(appendErr);
+		// 	} else {
+		// 		console.log("Logged..."+JSON.stringify(logObj), new Date());
+		// 	}
+		// });
 
-		let recipient = "caio.saldanha@syligo.com";
+		const cliente = new Cliente();
 
-		let mailOptions = {
-			from: "zscaio.si@gmail.com",
-			to: recipient,
-			subject: "Nodejs TESTE",
-			html: `<h1>Olá ${recipient}!</h1><br /><p>Seu pet acaba de ser alimentado através do dispositivo que assina o tópico <strong> ${logObj.topic}</strong></p>`
-		}
-
-		nodeTransporter.sendMail(mailOptions, (mailErr, mailInfo) => {
-			if (mailErr) {
-				console.log(mailErr);
-			} else {
-				console.log('Email sent: ' + mailInfo.response);
-			}
-		});
+		cliente.sendEmail({ device: deviceId, message, topic: t });
 
 	});
 }
