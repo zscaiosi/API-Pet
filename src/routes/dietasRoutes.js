@@ -84,7 +84,7 @@ router.post('/cadastrar', (req, res) => {
                   } });
                 }else{
                   res.status(200).json({ insert: {
-                    ok: insertResult.result.ok, inserted: insertResult.result.n
+                    ok: insertResult.result.ok, inserted: insertResult.result
                   }, update: {
                     ok: updateResult.result.ok, response: {
                       scanned: updateResult.result.n, modified: updateResult.result.nModified

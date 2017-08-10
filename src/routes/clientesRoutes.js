@@ -24,7 +24,7 @@ router.post('/login', (req, res) => {
 
   validate.isValidUser(body, (findErr, result) => {
     if( result ){
-      res.status(200).json({response: 'authenticated'});
+      res.status(200).json({response: 'authenticated', user: result});
     }else if( findErr ){
       res.status(500).json({response: 'erro', error: findErr});
     }else if( result === null ){

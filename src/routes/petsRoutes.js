@@ -104,7 +104,7 @@ router.post('/cadastrar', (req, res) => {
                     scanned: updateResult.result.scanned, modified: updateResult.result.nModified
                   }
                 }, insert: {
-                  response: { ok: result.result.ok, inserted: result.result.n }
+                  response: { ok: result.result.ok, inserted: result.result }
                 } });
               }
             }
