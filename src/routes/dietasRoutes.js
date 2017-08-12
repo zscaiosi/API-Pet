@@ -28,8 +28,23 @@ router.get('/procurar', (req, res) => {
         });
 
       });
+    } else if( queryObj.hasOwnProperty("device_id") ) {
+      mongodbClient.connect(mongoUrl.mongodbUrl, (dbErr, db) => {
+
+        db.collection('dietas').findOne({device: queryObj.device_id}, (findErr, result) => {
+          
+          if( findErr ){
+            res.status(500).json({response: 'Transacion failed!'});
+          }else{
+            res.status(200).json({response: 'ok', data: result});
+          }
+          db.close();
+        });
+
+      });
     } else {
-      res.status(400).json({ response: 'Busca possível apenas por _id.' });
+      res.status(400).json({ response: 'Parâmetros insuficientes para a busca.' });
+      db.close();
     }
   } catch (exception) {
     throw exception;

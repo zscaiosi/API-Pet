@@ -36,7 +36,6 @@ router.get('/procurar', function(req, res){
 router.get('/procurar/deviceAssociado', (req, res) => {
   try{
     let queryObj = req.query;
-    console.log('q: ',queryObj)
 
     if( queryObj.hasOwnProperty("device_id") ){
       mongodbClient.connect(mongoUrl.mongodbUrl, (dbErr, db) => {
