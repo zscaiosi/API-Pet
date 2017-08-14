@@ -10,10 +10,10 @@ ValidateLoginDAO.prototype.isValidUser = function(u, next){
   mongodbClient.connect(mongoUrl, (connErr, db) => {
 
     if(connErr) console.log(connErr);
-    console.log('isValidUser');
+    console.log('u', u);
 
     if( u.hasOwnProperty("username") ){
-      db.collection('clientes').findOne({ email: u.username }, (findErr, result) => {
+      db.collection('clientes').findOne({ email: u.username, pswd: u.pswd }, (findErr, result) => {
         if(next) {
           next(findErr, result);
         }
