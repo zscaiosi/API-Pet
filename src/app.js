@@ -15,8 +15,8 @@ let mqttSubFeed = new MqttSubsController(endpoint.mqttAws, 'device/racao/+/ativi
 
 // const diets = new DietasDAO();
 // diets.checkDiets();
-const actv = new ActiveClients("check/+", "localhost", "check/response/+");
-//actv.checkClients();
+const actv = new ActiveClients("check/123", "localhost", "check/response/+");
+actv.checkClients();
 //setInterval(() => {diets.checkDiets()}, 10000);
 
 app.listen(8581, function () {

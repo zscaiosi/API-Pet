@@ -16,12 +16,13 @@ class ActiveClients {
     });
 
     this._mqttClient.on('message', (t, m) => {
-      
+      this._activeList.push(m.slice(-5));
+      console.log("list", String(this._activeList));
     });
   }
 
   checkClients(){
-    this._mqttClient.publish(this._checkTopic, "1", {qos: 1, retain: true}, (mqttErr, packet) => {
+    this._mqttClient.publish(this._checkTopic, "1_3", null, (mqttErr) => {
       
     });
   }
