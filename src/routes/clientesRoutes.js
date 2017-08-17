@@ -89,17 +89,28 @@ router.post('/cadastrar', function (req, res) {
       if (connErr) throw connErr;
       //Verifica se tem um campo _id
       if( payload.hasOwnProperty("_id") ){
-        //Insert do payload do post, sem options e com callback
-        db.collection('clientes').insert(payload, null, (insertErr, result) => {
-          console.log('erro db insert cli', insertErr)
-          if ( insertErr ) {
-            res.status(500).json({ response: "erro", error: insertErr });
-          }else if (result.result.n > 0 && result.result.ok === 1 && insertErr === null) {
-            res.status(200).json({ response: { ok: result.result.ok, inserted: result.result.n } });
-          } else {
-            res.status(500).json({ repsonse: { ok: result.result.ok, data: "Transaction failed!" } });
+        db.collection("clientes").findOne( (findErr, findResult) => {
+
+          if( findErr ){
+            res.status(500).json({response: 'erro', error: findErr});
+          }else if( findResult !== null ){
+            res.status(200).json({response: 'exists', data: findResult});
+          }else{
+            //Insert do payload do post, sem options e com callback
+            db.collection('clientes').insert(payload, null, (insertErr, result) => {
+              console.log('erro db insert cli', insertErr)
+              if ( insertErr ) {
+                res.status(500).json({ response: "error", error: insertErr });
+              }else if (result.result.n > 0 && result.result.ok === 1 && insertErr === null) {
+                res.status(200).json({ response: { ok: result.result.ok, inserted: result.result.n } });
+              } else {
+                res.status(500).json({ repsonse: { ok: result.result.ok, data: "Transaction failed!" } });
+              }
+              //FIM INSERT
+            });
           }
           db.close();
+        // FIM FIND ONE
         });
       }else{
         res.status(400).json({response: 'Precisa de uma chave _id, que deve ser o CPF do cliente!'});

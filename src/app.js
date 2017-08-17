@@ -7,14 +7,16 @@ let MqttPubsController = require('./controllers/mqttPubsController');
 //Carrega a função de config do express
 let config = require('./config/express');
 let endpoint = require('./config/endpoints.json');
-
+const ActiveClients = require('./model/ActiveClients');
 var app = config();
 
 //Instancia os subscribers logo no início
 let mqttSubFeed = new MqttSubsController(endpoint.mqttAws, 'device/racao/+/atividades/+');
 
-const diets = new DietasDAO();
-diets.checkDiets();
+// const diets = new DietasDAO();
+// diets.checkDiets();
+const actv = new ActiveClients("check/+", "localhost", "check/response/+");
+//actv.checkClients();
 //setInterval(() => {diets.checkDiets()}, 10000);
 
 app.listen(8581, function () {

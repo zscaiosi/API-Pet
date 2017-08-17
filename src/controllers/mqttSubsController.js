@@ -15,6 +15,7 @@ function MqttSubsController(url, t) {
 		let arrTopic = topic.split("/");
 		let activity = JSON.parse(message.toString());
 //Pega o ID do device, que deve ser um nível do tópico
+// device/racao/'id device'/atividades/'nome pet'
 		let id = arrTopic.filter((segment, index) => {
 			if ((segment !== "device" || segment !== "racao" || segment !== "atividades") && index === 2) {
 				return segment;
@@ -28,7 +29,7 @@ function MqttSubsController(url, t) {
 //APENAS SE HOUVER O NÍVEL RAÇÃO NO TÓPICO
 		if (arrTopic.findIndex(filterTopic) !== -1) {
 			const dietaActivity = new DietaDAO();
-			dietaActivity.registerActivity(id, activity.atividade);
+			dietaActivity.registerActivity(id[0], activity.atividade);
 		} else {
 			console.log("OUTRO TÓPICO = ", topic, activity);
 		}

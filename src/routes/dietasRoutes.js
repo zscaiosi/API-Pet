@@ -28,6 +28,7 @@ router.get('/procurar', (req, res) => {
         });
 
       });
+    //Se a busca não foi pelo ID da dieta, mas sim do device associado, então:
     } else if( queryObj.hasOwnProperty("device_id") ) {
       mongodbClient.connect(mongoUrl.mongodbUrl, (dbErr, db) => {
 

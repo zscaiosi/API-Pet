@@ -43,7 +43,7 @@ router.get('/procurar/clienteAssociado', (req, res) => {
 
         db.collection("devices").findOne({ cliente: queryObj.cliente_id }, (findErr, findResult) => {
           if( findErr ){
-            res.status(500).json({ response: 'Find failed!', error: findErr });
+            res.status(500).json({ response: 'error', error: findErr });
           }else{
             res.status(200).json({ response: 'ok', data: findResult });
           }
@@ -139,7 +139,7 @@ router.put('/atualizar', function (req, res) {
       }
     });
   }catch(exception){
-    console.log('exceptio', exception);
+    console.log('exception', exception);
     throw exception;
   }
 });
