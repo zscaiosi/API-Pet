@@ -5,6 +5,8 @@ var router = express.Router();
 //importa mongodb client
 let mongodbClient = require('mongodb').MongoClient;
 const mongoUrl = require('../config/endpoints.json');
+//Importa classe para alimentar
+const Alimentacao = require('../model/Alimentacao');
 
 router.get('/procurar', (req, res) => {
   try {
@@ -176,8 +178,27 @@ router.put('/associar/dieta', (req, res) => {
       db.close();
     });
   }catch(exception){
-    console.log('exceptio', exception);
+    console.log('exception', exception);
     throw exception;
+  }
+});
+
+router.get('/alimentar/pet', (req, res) => {
+  try{
+    let queryString = req.query;
+    
+    if( queryString.hasOwnProperty("device") ){
+      const feeder = new Alimentacao(queryString.device);
+      feeder.feed( (resp) => {
+        res.status(200).json({ response: 'ok', payload: resp });
+      });
+      
+    }else{
+      res.status(400).json({ response: 'Parâmetro device não encontrado. ' })
+    }
+
+  }catch(exception){
+    console.log("exception", exception);
   }
 });
 

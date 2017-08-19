@@ -13,6 +13,7 @@ const nodeTransporter = mailer.createTransport({
 
 function MqttPubsController(url, t) {
 	this.url = url;
+	this._topic = t;
 	this.mqttClient = mqtt.connect('mqtt://' + url);
 
 	this.mqttClient.on('connect', () => {
@@ -63,6 +64,5 @@ MqttPubsController.prototype.pub = function (t, message, deviceId) {
 
 	});
 }
-
 
 module.exports = MqttPubsController;

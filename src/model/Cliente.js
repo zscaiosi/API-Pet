@@ -21,7 +21,7 @@ Cliente.prototype.sendEmail = function(body) {
       if( findErr ){
         console.log("findErr", findErr);
       }else{
-        console.log("result---", findResult)
+        //console.log("result---", findResult)
         let recipient = "zscaio.si@gmail.com";
 
         let mailOptions = {
