@@ -32,7 +32,7 @@ MqttPubsController.prototype.pub = function (t, message, deviceId) {
 			message: message,
 			date: new Date()
 		}
-//Loga as mensagens publicadas
+//Loga as mensagens publicadas RETIRAR COMMENT
 		// fs.appendFile("/home/ubuntu/Documents/logs_mqtt_pubs_nodejs_petdevice.txt", JSON.stringify(logObj) + "\n", (appendErr) => {
 		// 	if (appendErr) {
 		// 		console.log(appendErr);

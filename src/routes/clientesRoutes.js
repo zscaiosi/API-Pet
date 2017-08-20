@@ -17,6 +17,7 @@ const ValidateLoginDAO = require('../controllers/ValidateLoginDAO');
 //     console.log('autenticado ->', req.username);
 //     res.json({validado: 'ok'})
 // });
+const ActiveClients = require("../model/ActiveClients");
 
 router.post('/login', (req, res) => {
   const body = req.body;
@@ -156,6 +157,22 @@ router.put('/atualizar', function (req, res) {
     console.log('exceptio', exception);
     throw exception;
   }
+});
+
+router.get('/checar', (req, res) => {
+  let queryObj = req.query;
+  let checkingClass = new ActiveClients(`check/${queryObj.device}`, `localhost`, `check/response/+`, (clientResponse = null) => {
+    
+    if( clientResponse !== null ){
+      res.status(200).json({ response: clientResponse, online: true });
+    }else{
+      res.status(200).json({ response: null, online: false });
+    }
+
+  });
+
+  checkingClass.checkClients();
+
 });
 
 module.exports = router;

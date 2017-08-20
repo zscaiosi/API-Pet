@@ -2,7 +2,7 @@ const mqtt = require('mqtt');
 
 //Classe usando sintaxe ES6
 class ActiveClients {
-  constructor(checkTopic, url, responseTopic){
+  constructor(checkTopic, url, responseTopic, next){
     this._activeList = [];
     this._isChecking = false;
     this._checkTopic = checkTopic;
@@ -16,8 +16,10 @@ class ActiveClients {
     });
 
     this._mqttClient.on('message', (t, m) => {
-      this._activeList.push(m.slice(-5));
+      this._activeList.push(String(m));
       console.log("list", String(this._activeList));
+      //Callback
+      next({topic: t, message: m});
     });
   }
 
