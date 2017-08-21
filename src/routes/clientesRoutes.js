@@ -161,17 +161,11 @@ router.put('/atualizar', function (req, res) {
 
 router.get('/checar', (req, res) => {
   let queryObj = req.query;
-  let checkingClass = new ActiveClients(`check/${queryObj.device}`, `localhost`, `check/response/+`, (clientResponse = null) => {
-    
-    if( clientResponse !== null ){
-      res.status(200).json({ response: clientResponse, online: true });
-    }else{
-      res.status(200).json({ response: null, online: false });
-    }
+  let checkingClass = new ActiveClients(`check/${queryObj.device}`, `localhost`, `check/response/+`);
 
+  checkingClass.checkClients( (clientResponse) => {
+    console.log("next já")
   });
-
-  checkingClass.checkClients();
 
 });
 
