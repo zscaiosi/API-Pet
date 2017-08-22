@@ -16,10 +16,20 @@ DietasDAO.prototype.checkDiets = function () {
 			console.log("LAST TIME FEED", this._lastTime);
 			//Transforma o Cusor em um array
 			db.collection('dietas').find().toArray(function (dbErr, items) {
+				//Trata erro
 				if (dbErr) {console.log('dbErr', dbErr)}
 
 				items.map(function (item, index) {
-					console.log(`Item ${index}-->>`, item);
+					console.log(`Dieta Item ${index}-->>`, item.data_inicio.split("-"));
+
+					let ini = item.data_inicio.split("-");
+					let end = item.data_fim.split("-");
+					let date_ini = new Date(...ini);
+					let date_end = new Date(...end);
+					let today = new Date();
+					
+					console.log("date_ini", date_ini, "today", today, "date_end", date_end);
+					console.log("date_ini < today", date_ini < today, "date_end > today", date_end > today);
 
 					item.horarios.map((horario, index) => {
 //Se hora e minutos forem iguais e último horário de alimentação for diferente da hora atual, alimenta.
@@ -34,9 +44,11 @@ DietasDAO.prototype.checkDiets = function () {
 						}else{
 							console.log("----------------------diferente...----------------------", horario.slice(0, 5), String(now).slice(16, 21), "\n");
 						}
-
+//--------------FIM MAP DOS HORARIOS--------------
 					});
+//-----------FIM MAP DAS DIETAS-------------------				
 				});
+
 			});
 			db.close();
 		});

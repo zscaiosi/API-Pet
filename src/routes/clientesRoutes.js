@@ -90,7 +90,7 @@ router.post('/cadastrar', function (req, res) {
       if (connErr) throw connErr;
       //Verifica se tem um campo _id
       if( payload.hasOwnProperty("_id") ){
-        db.collection("clientes").findOne( (findErr, findResult) => {
+        db.collection("clientes").findOne({ "_id": payload._id }, (findErr, findResult) => {
 
           if( findErr ){
             res.status(500).json({response: 'erro', error: findErr});

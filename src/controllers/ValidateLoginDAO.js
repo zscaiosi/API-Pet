@@ -14,7 +14,9 @@ ValidateLoginDAO.prototype.isValidUser = function(u, next){
 
     if( u.hasOwnProperty("username") ){
       db.collection('clientes').findOne({ email: u.username, pswd: u.pswd }, (findErr, result) => {
+        console.log("....", findErr, result)        
         if(next) {
+          console.log("....")
           next(findErr, result);
         }
 
@@ -22,7 +24,7 @@ ValidateLoginDAO.prototype.isValidUser = function(u, next){
         db.close();
       });
     }else{
-
+      next({error: "Campo username não informado."});
     }
 
   });

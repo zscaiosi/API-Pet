@@ -13,10 +13,9 @@ var app = config();
 //Instancia os subscribers logo no início
 let mqttSubFeed = new MqttSubsController(endpoint.mqttAws, 'device/racao/+/atividades/+');
 
-// const diets = new DietasDAO();
-// diets.checkDiets();
-const actv = new ActiveClients("check/123", "localhost", "check/response/+");
-actv.checkClients();
+const diets = new DietasDAO();
+diets.checkDiets();
+
 //setInterval(() => {diets.checkDiets()}, 10000);
 
 app.listen(8581, function () {
