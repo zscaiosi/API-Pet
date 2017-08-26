@@ -45,7 +45,7 @@ DietasDAO.prototype.checkDiets = function () {
 							let tempo_abertura = item.porcao/100;
 
 							let mqttPub = new MqttPubsController(mqttUrl, `pote/racao/${item.device}/alimentar`);
-							mqttPub.pub(`pote/racao/${item.device}/alimentar`, JSON.stringify({ aberto: true, tempo_abertura, qtde_aberturas }), item.device);
+							mqttPub.pub(`pote/racao/${item.device}/alimentar`, JSON.stringify({ alimentar: { aberto: true, tempo_abertura, qtde_aberturas } }), item.device);
 
 						}else{
 							console.log("----------------------diferente...----------------------", horario.slice(0, 5), String(now).slice(16, 21), "\n");
