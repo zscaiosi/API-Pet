@@ -1,5 +1,5 @@
 # API-Pet
-Uma API em NodeJS utilizando os módulos express, mysql e socket.io
+Uma API em NodeJS
 
 # Para que serve?
 Este projeto é um exemplo baseado no curso NodeJS do Alura.
