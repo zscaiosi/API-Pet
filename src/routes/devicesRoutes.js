@@ -188,13 +188,15 @@ router.get('/alimentar/pet', (req, res) => {
     let queryString = req.query;
     
     if( queryString.hasOwnProperty("device") ){
+
       const feeder = new Alimentacao(queryString.device);
+
       feeder.feed( (resp) => {
         res.status(200).json({ response: 'ok', payload: resp });
       });
       
     }else{
-      res.status(400).json({ response: 'Parâmetro device não encontrado. ' })
+      res.status(400).json({ response: 'Parâmetro device não encontrado. ' });
     }
 
   }catch(exception){

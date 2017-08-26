@@ -14,22 +14,25 @@ DietasDAO.prototype.checkDiets = function () {
 		mongodbClient.connect(mongoUrl, function (connErr, db) {
 			if (connErr) throw connErr;
 			console.log("LAST TIME FEED", this._lastTime);
+
 			//Transforma o Cusor em um array
 			db.collection('dietas').find().toArray(function (dbErr, items) {
 				//Trata erro
 				if (dbErr) {console.log('dbErr', dbErr)}
 
 				items.map(function (item, index) {
-					console.log(`Dieta Item ${index}-->>`, item.data_inicio.split("-"));
+					console.log(`Dieta Item ${index}-->>`, item.data_inicio.split("-")+"\n");
 
 					let ini = item.data_inicio.split("-");
 					let end = item.data_fim.split("-");
 					let date_ini = new Date(...ini);
 					let date_end = new Date(...end);
 					let today = new Date();
+
+					console.log("now", new Date()+"\n");
 					
-					console.log("date_ini", date_ini, "today", today, "date_end", date_end);
-					console.log("date_ini < today", date_ini < today, "date_end > today", date_end > today);
+					console.log("\n date_ini", Date.parse(date_ini), "\n today", Date.parse(today), "\n date_end", Date.parse(date_end));
+					console.log("\n date_ini < today", Date.parse(date_ini) < Date.parse(today), "date_end > today", Date.parse(date_end) > Date.parse(today));
 
 					item.horarios.map((horario, index) => {
 //Se hora e minutos forem iguais e último horário de alimentação for diferente da hora atual, alimenta.
@@ -38,8 +41,11 @@ DietasDAO.prototype.checkDiets = function () {
 //Controlando o horário da alimentação para impedir que acione duas vezes no memso minuto o device
 							this._lastTime = horario;
 
-							let mqttPub = new MqttPubsController(mqttUrl, `device/racao/${item.device}/alimentar/rex`);
-							mqttPub.pub(`device/racao/${item.device}/alimentar/pet`, JSON.stringify({ aberto: true }), item.device);
+							let qtde_aberturas = item.porcao/100;
+							let tempo_abertura = item.porcao/100;
+
+							let mqttPub = new MqttPubsController(mqttUrl, `pote/racao/${item.device}/alimentar`);
+							mqttPub.pub(`pote/racao/${item.device}/alimentar`, JSON.stringify({ aberto: true, tempo_abertura, qtde_aberturas }), item.device);
 
 						}else{
 							console.log("----------------------diferente...----------------------", horario.slice(0, 5), String(now).slice(16, 21), "\n");
@@ -86,13 +92,13 @@ DietasDAO.prototype.registerActivity = function (deviceId, activityJson) {
 					}
 				}///home/ubuntu/Documents/logs_nodejs_petdevice.txt
 //Cria ou insere no arquivo o log da mensagem incorreta				
-				// fs.appendFile("/home/ubuntu/Documents/logs_nodejs_petdevice.txt", JSON.stringify(logObj)+"\n", (appendErr) => {
-				// 	if( appendErr ){
-				// 		console.log("error: ", appendErr);
-				// 	}else{
-				// 		console.log("Logged...");
-				// 	}
-				// });
+				fs.appendFile("/home/ubuntu/Documents/logs_nodejs_petdevice.txt", JSON.stringify(logObj)+"\n", (appendErr) => {
+					if( appendErr ){
+						console.log("error: ", appendErr);
+					}else{
+						console.log("Logged...");
+					}
+				});
 			}
 
 			db.close();

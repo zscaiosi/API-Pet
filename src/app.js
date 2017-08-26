@@ -11,7 +11,7 @@ const ActiveClients = require('./model/ActiveClients');
 var app = config();
 
 //Instancia os subscribers logo no início
-let mqttSubFeed = new MqttSubsController(endpoint.mqttAws, 'device/racao/+/atividades/+');
+let mqttSubFeed = new MqttSubsController(endpoint.mqttAws, 'pote/racao/+/atividades');
 
 const diets = new DietasDAO();
 diets.checkDiets();

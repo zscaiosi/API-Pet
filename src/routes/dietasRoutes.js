@@ -75,7 +75,7 @@ router.get('/listar', (req, res) => {
 router.post('/cadastrar', (req, res) => {
   try {
     const payload = req.body;
-    // console.log("post payload=", payload);
+    console.log("post payload=", payload);
 
     mongodbClient.connect(mongoUrl.mongodbUrl, (connErr, db) => {
       if (connErr) throw connErr;

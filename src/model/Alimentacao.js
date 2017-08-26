@@ -8,8 +8,8 @@ function Alimentacao(idDevice) {
 
 Alimentacao.prototype.feed = function (next) {
 
-  const mqttClient = new MqttPubsController(mqttAws, `device/racao/${this._idDevice}/alimentar/pet`);
-  mqttClient.pub(`device/racao/${this._idDevice}/alimentar/pet`, "{\"aberto\": true, \"qtde_abrir\": 1}", "28864b");
+  const mqttClient = new MqttPubsController(mqttAws, `pote/racao/${this._idDevice}/alimentar`);
+  mqttClient.pub(`pote/racao/${this._idDevice}/alimentar`, "{\"aberto\": true, \"qtde_abrir\": 1}", "28864b");
 
   let date = new Date();
   let data = date.getFullYear()+"-"+(date.getMonth()+1)+"-"+date.getDate();

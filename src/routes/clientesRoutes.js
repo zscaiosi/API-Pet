@@ -159,14 +159,15 @@ router.put('/atualizar', function (req, res) {
   }
 });
 
-router.get('/checar', (req, res) => {
-  let queryObj = req.query;
-  let checkingClass = new ActiveClients(`check/${queryObj.device}`, `localhost`, `check/response/+`);
+// Tentar depois, ainda não deu certo e não é essencial para o MVP
+// router.get('/checar', (req, res) => {
+//   let queryObj = req.query;
+//   let checkingClass = new ActiveClients(`check/${queryObj.device}`, `localhost`, `check/response/+`);
 
-  checkingClass.checkClients( (clientResponse) => {
-    console.log("next já")
-  });
+//   checkingClass.checkClients( (clientResponse) => {
+//     console.log("next já")
+//   });
 
-});
+// });
 
 module.exports = router;

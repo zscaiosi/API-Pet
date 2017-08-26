@@ -15,9 +15,9 @@ function MqttSubsController(url, t) {
 		let arrTopic = topic.split("/");
 		let activity = JSON.parse(message.toString());
 //Pega o ID do device, que deve ser um nível do tópico
-// device/racao/'id device'/atividades/'nome pet'
+// pote/racao/'id device'/atividades
 		let id = arrTopic.filter((segment, index) => {
-			if ((segment !== "device" || segment !== "racao" || segment !== "atividades") && index === 2) {
+			if ((segment !== "pote" || segment !== "racao" || segment !== "atividades") && index === 2) {
 				return segment;
 			}
 		});
@@ -25,11 +25,15 @@ function MqttSubsController(url, t) {
 		let filterTopic = (element, index) => {
 			return element === "racao";
 		}
+		console.log("---", arrTopic.findIndex(filterTopic))
 //Instancia DietaDAO e invoca a função que atualiza o array de atividades do documento,
 //APENAS SE HOUVER O NÍVEL RAÇÃO NO TÓPICO
+//Ver doc de findIndex em MDN!
 		if (arrTopic.findIndex(filterTopic) !== -1) {
+
 			const dietaActivity = new DietaDAO();
 			dietaActivity.registerActivity(id[0], activity.atividade);
+
 		} else {
 			console.log("OUTRO TÓPICO = ", topic, activity);
 		}
