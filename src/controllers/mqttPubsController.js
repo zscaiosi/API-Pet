@@ -17,8 +17,7 @@ function MqttPubsController(url, t) {
 	this.mqttClient = mqtt.connect('mqtt://' + url);
 
 	this.mqttClient.on('connect', () => {
-		// this.mqttClient.publish(t);
-		// this.mqttClient.end();
+
 	});
 
 }

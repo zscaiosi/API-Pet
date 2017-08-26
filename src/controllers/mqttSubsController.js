@@ -25,14 +25,18 @@ function MqttSubsController(url, t) {
 		let filterTopic = (element, index) => {
 			return element === "racao";
 		}
-		console.log("---", arrTopic.findIndex(filterTopic))
+
 //Instancia DietaDAO e invoca a função que atualiza o array de atividades do documento,
 //APENAS SE HOUVER O NÍVEL RAÇÃO NO TÓPICO
 //Ver doc de findIndex em MDN!
 		if (arrTopic.findIndex(filterTopic) !== -1) {
+			//Calcula e atribui ao objeto atividade a porção servida.
+			let target = activity.atividade;
+			let formattedActivity = Object.assign(target, {porcao: activity.atividade.qtde_aberturas*100});
 
+console.log("Atividade:", formattedActivity)
 			const dietaActivity = new DietaDAO();
-			dietaActivity.registerActivity(id[0], activity.atividade);
+			dietaActivity.registerActivity(id[0], formattedActivity);
 
 		} else {
 			console.log("OUTRO TÓPICO = ", topic, activity);
