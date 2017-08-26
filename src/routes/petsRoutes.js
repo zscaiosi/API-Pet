@@ -4,8 +4,7 @@ var express = require('express');
 var router = express.Router();
 //importa mongodb client
 let mongodbClient = require('mongodb').MongoClient;
-
-let mongoUrl = 'mongodb://mongocaio:m0ng0ldb*@clusteruno-shard-00-01-7t23t.mongodb.net:27017/petdevice?ssl=true&replicaSet=ClusterUno-shard-0&authSource=admin';
+const mongoUrl = require('../config/endpoints.json');
 
 router.get('/procurar', function(req, res){
   try {
@@ -13,30 +12,54 @@ router.get('/procurar', function(req, res){
     console.log('query', queryObj);
 
     if (queryObj.hasOwnProperty("_id")) {
-      mongodbClient.connect(mongoUrl, (dbErr, db) => {
+      mongodbClient.connect(mongoUrl.mongodbUrl, (dbErr, db) => {
 
-        db.collection('pets').findOne(queryObj, (findErr, result) => {
+        db.collection('pets').findOne(queryObj, (findErr, findResult) => {
           
           if( findErr ){
-            res.status(500).json({response: 'Transacion failed!'});
+            res.status(500).json({response: 'Transacion failed!', error: findErr});
           }else{
-            res.status(200).json({response: 'ok', data: result});
+            res.status(200).json({response: 'ok', data: findResult});
           }
           db.close();
         });
 
       });
     } else {
-      res.status(400).json({ response: 'Busca possível apenas por _id.' });
+      res.status(400).json({ response: 'Busca possível apenas por _id.', query: queryObj });
     }
   } catch (exception) {
     throw exception;
   }
 });
 
+router.get('/procurar/deviceAssociado', (req, res) => {
+  try{
+    let queryObj = req.query;
+
+    if( queryObj.hasOwnProperty("device_id") ){
+      mongodbClient.connect(mongoUrl.mongodbUrl, (dbErr, db) => {
+        db.collection('pets').findOne({ device: queryObj.device_id }, (findErr, findResult) => {
+          if( findErr ){
+            res.status(500).json({response: 'Find failed!', error: findErr});
+          }else{
+            res.status(200).json({response: 'ok', data: findResult});
+          }
+        });
+        db.close();
+      });
+    }else{
+      res.status(400).json({response: 'Informe um device_id para realizar a busca!', query: queryObj})
+    }
+  }catch(exception){
+    throw exception
+    console.log('esception', exception);
+  }
+});
+
 router.get('/listar', (req, res) => {
   try {
-    mongodbClient.connect(mongoUrl, (connErr, db) => {
+    mongodbClient.connect(mongoUrl.mongodbUrl, (connErr, db) => {
       if (connErr) throw connErr;
       //Lista todos documentos em um array
       db.collection("pets").find().toArray((findErr, results) => {
@@ -57,19 +80,45 @@ router.get('/listar', (req, res) => {
 router.post('/cadastrar', (req, res) => {
   try {
     const payload = req.body;
-    console.log("post payload=", payload);
+    console.log("post pet payload=", payload);
 
-    mongodbClient.connect(mongoUrl, (connErr, db) => {
+    mongodbClient.connect(mongoUrl.mongodbUrl, (connErr, db) => {
       if (connErr) throw connErr;
-      //Insert do payload do post, sem options e com callback
-      db.collection('pets').insert(payload, null, (dbErr, result) => {
-        if (result.result.n > 0 && result.result.ok === 1) {
-          res.status(200).json({ response: { ok: result.result.ok, inserted: result.result.n } });
-        } else {
-          res.status(500).json({ repsonse: { ok: result.result.ok, data: "Transaction failed!" } });
-        }
+      //Verifica se há _id
+      if( payload.hasOwnProperty("_id") ){
+        //Insert do payload do post, sem options e com callback
+        db.collection('pets').insert(payload, null, (dbErr, result) => {
+          //Update do device com o novo pet
+          db.collection("devices").updateOne({_id: Number(payload.device)},
+            {
+              $set: { pet_alimentado: Number(payload._id)}
+            },
+            null,
+            (updateErr, updateResult) => {
+              if( updateErr ){
+                res.status(500).json({response: 'Update failed!'});
+              }else{
+                res.status(200).json({ update: {
+                  ok: updateResult.result.ok, response: {
+                    scanned: updateResult.result.scanned, modified: updateResult.result.nModified
+                  }
+                }, insert: {
+                  response: { ok: result.result.ok, inserted: result.result }
+                } });
+              }
+            }
+          );
+          if (result.result.n > 0 && result.result.ok === 1) {
+            //res.status(200).json({ response: { ok: result.result.ok, inserted: result.result.n } });
+          } else {
+            res.status(500).json({ repsonse: { ok: result.result.ok, data: "Transaction failed!" } });
+          }
+          db.close();
+        });   
+      }else{
+        res.status(400).json({ response: 'Precisa de _id!'});
         db.close();
-      });
+      }
     });
   } catch (exception) {
     throw exception;
@@ -81,7 +130,7 @@ router.put('/atualizar', function (req, res) {
     const payload = req.body;
     console.log("put payload=",payload);
 
-    mongodbClient.connect(mongoUrl, (connErr, db) => {
+    mongodbClient.connect(mongoUrl.mongodbUrl, (connErr, db) => {
       if(connErr) throw connErr;
     //Faz update do cliente sem options e com callback
       if( payload.hasOwnProperty("_id") ){

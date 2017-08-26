@@ -4,8 +4,9 @@ var express = require('express');
 var router = express.Router();
 //importa mongodb client
 let mongodbClient = require('mongodb').MongoClient;
-
-let mongoUrl = 'mongodb://mongocaio:m0ng0ldb*@clusteruno-shard-00-01-7t23t.mongodb.net:27017/petdevice?ssl=true&replicaSet=ClusterUno-shard-0&authSource=admin';
+const mongoUrl = require('../config/endpoints.json');
+//Importa classe para alimentar
+const Alimentacao = require('../model/Alimentacao');
 
 router.get('/procurar', (req, res) => {
   try {
@@ -13,7 +14,7 @@ router.get('/procurar', (req, res) => {
     console.log('query', queryObj);
 
     if (queryObj.hasOwnProperty("_id")) {
-      mongodbClient.connect(mongoUrl, (dbErr, db) => {
+      mongodbClient.connect(mongoUrl.mongodbUrl, (dbErr, db) => {
 
         db.collection('devices').findOne(queryObj, (findErr, result) => {
           
@@ -34,9 +35,36 @@ router.get('/procurar', (req, res) => {
   }
 });
 
+router.get('/procurar/clienteAssociado', (req, res) => {
+  try{
+    let queryObj = req.query;
+    //Se a query string possuir cliente_id, abre a conexão e faz a consulta
+    if( queryObj.hasOwnProperty("cliente_id") ){
+      mongodbClient.connect(mongoUrl.mongodbUrl, (dbErr, db) => {
+        if(dbErr) throw dbErr;
+
+        db.collection("devices").findOne({ cliente: queryObj.cliente_id }, (findErr, findResult) => {
+          if( findErr ){
+            res.status(500).json({ response: 'error', error: findErr });
+          }else{
+            res.status(200).json({ response: 'ok', data: findResult });
+          }
+          db.close();
+        });
+      });
+    }else{
+    //Caso não tenha cliente_id retona bad request
+      res.status(400).json({ response: 'Informe um parâmetro cliente_id para a busca!' });
+    }
+  }catch(exception){
+    throw exception;
+    console.log('excep', exception);
+  }
+})
+
 router.get('/listar', (req, res) => {
   try {
-    mongodbClient.connect(mongoUrl, (connErr, db) => {
+    mongodbClient.connect(mongoUrl.mongodbUrl, (connErr, db) => {
       if (connErr) throw connErr;
       //Lista todos documentos em um array
       db.collection("devices").find().toArray((findErr, results) => {
@@ -59,17 +87,23 @@ router.post('/cadastrar', (req, res) => {
     const payload = req.body;
     console.log("post payload=", payload);
 
-    mongodbClient.connect(mongoUrl, (connErr, db) => {
+    mongodbClient.connect(mongoUrl.mongodbUrl, (connErr, db) => {
       if (connErr) throw connErr;
-      //Insert do payload do post, sem options e com callback
-      db.collection('devices').insert(payload, null, (dbErr, result) => {
-        if (result.result.n > 0 && result.result.ok === 1) {
-          res.status(200).json({ response: { ok: result.result.ok, inserted: result.result.n } });
-        } else {
-          res.status(500).json({ repsonse: { ok: result.result.ok, data: "Transaction failed!" } });
-        }
+      //Verifica se tem um campo _id
+      if( payload.hasOwnProperty("_id") ){
+        //Insert do payload do post, sem options e com callback
+        db.collection('devices').insert(payload, null, (dbErr, result) => {
+          if (result.result.n > 0 && result.result.ok === 1) {
+            res.status(200).json({ response: { ok: result.result.ok, inserted: result.result.n } });
+          } else {
+            res.status(500).json({ repsonse: { ok: result.result.ok, data: "Transaction failed!" } });
+          }
+          db.close();
+        });
+      }else{
+        res.status(400).json({response: 'Precisa de uma chave _id!'});
         db.close();
-      });
+      }
     });
   } catch (exception) {
     throw exception;
@@ -81,7 +115,7 @@ router.put('/atualizar', function (req, res) {
     const payload = req.body;
     console.log("put payload=",payload);
 
-    mongodbClient.connect(mongoUrl, (connErr, db) => {
+    mongodbClient.connect(mongoUrl.mongodbUrl, (connErr, db) => {
       if(connErr) throw connErr;
     //Faz update do cliente sem options e com callback
       if( payload.hasOwnProperty("_id") ){
@@ -107,8 +141,66 @@ router.put('/atualizar', function (req, res) {
       }
     });
   }catch(exception){
-    console.log('exceptio', exception);
+    console.log('exception', exception);
     throw exception;
+  }
+});
+
+router.put('/associar/dieta', (req, res) => {
+  try{
+    const payload = req.body;
+    console.log("put payload de /associar/dieta =", typeof payload.device);
+
+    mongodbClient.connect(mongoUrl.mongodbUrl, (connErr, db) => {
+      if(connErr) throw connErr;
+    //Insert desta dieta no documento do device correspondente
+      if( payload.hasOwnProperty("device") ){
+        db.collection('devices').updateOne({_id: Number(payload.device)},
+          {
+            $push: {
+              dietas: payload
+            }
+          },
+          null,
+          //Callback
+          (updateErr, result) => {
+            if( updateErr ){
+              res.status(500).json({ response: 'Transaction failed!', data: updateErr });
+            }else{
+              res.status(200).json({ ok: result.result.ok, response: {
+                scanned: result.result.n, modified: result.result.nModified
+              } });
+            }
+          });
+      }else{
+        res.status(400).json({ response: 'Associação possível apenas por device.' });
+      }
+      db.close();
+    });
+  }catch(exception){
+    console.log('exception', exception);
+    throw exception;
+  }
+});
+
+router.get('/alimentar/pet', (req, res) => {
+  try{
+    let queryString = req.query;
+    
+    if( queryString.hasOwnProperty("device") ){
+
+      const feeder = new Alimentacao(queryString.device);
+
+      feeder.feed( (resp) => {
+        res.status(200).json({ response: 'ok', payload: resp });
+      });
+      
+    }else{
+      res.status(400).json({ response: 'Parâmetro device não encontrado. ' });
+    }
+
+  }catch(exception){
+    console.log("exception", exception);
   }
 });
 

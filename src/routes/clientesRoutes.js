@@ -4,8 +4,35 @@ var express = require('express');
 var router = express.Router();
 //importa mongodb client
 let mongodbClient = require('mongodb').MongoClient;
+const mongoUrl = require('../config/endpoints.json');
+//Passport para autenticação
+//const passport = require('passport');
+const ValidateLoginDAO = require('../controllers/ValidateLoginDAO');
+// router.post('/login',
+//   passport.authenticate('local', {
+//     session: false,
+//     failureFlash: true
+//   }),
+//   (req, res) => {
+//     console.log('autenticado ->', req.username);
+//     res.json({validado: 'ok'})
+// });
+const ActiveClients = require("../model/ActiveClients");
 
-let mongoUrl = 'mongodb://mongocaio:m0ng0ldb*@clusteruno-shard-00-01-7t23t.mongodb.net:27017/petdevice?ssl=true&replicaSet=ClusterUno-shard-0&authSource=admin';
+router.post('/login', (req, res) => {
+  const body = req.body;
+  const validate = new ValidateLoginDAO();
+
+  validate.isValidUser(body, (findErr, result) => {
+    if( result ){
+      res.status(200).json({response: 'authenticated', user: result});
+    }else if( findErr ){
+      res.status(500).json({response: 'erro', error: findErr});
+    }else if( result === null ){
+      res.status(500).json({response: 'not found', result: result});
+    }
+  });
+});
 
 router.get('/procurar', function (req, res) {
   try {
@@ -13,7 +40,7 @@ router.get('/procurar', function (req, res) {
     console.log('query', queryObj);
 
     if (queryObj.hasOwnProperty("_id")) {
-      mongodbClient.connect(mongoUrl, (dbErr, db) => {
+      mongodbClient.connect(mongoUrl.mongodbUrl, (dbErr, db) => {
 
         db.collection('clientes').findOne(queryObj, (findErr, result) => {
           
@@ -36,7 +63,7 @@ router.get('/procurar', function (req, res) {
 
 router.get('/listar', function (req, res) {
   try {
-    mongodbClient.connect(mongoUrl, (connErr, db) => {
+    mongodbClient.connect(mongoUrl.mongodbUrl, (connErr, db) => {
       if (connErr) throw connErr;
       //Lista todos documentos em um array
       db.collection("clientes").find().toArray((findErr, results) => {
@@ -59,17 +86,37 @@ router.post('/cadastrar', function (req, res) {
     const payload = req.body;
     console.log("post payload=", payload);
 
-    mongodbClient.connect(mongoUrl, (connErr, db) => {
+    mongodbClient.connect(mongoUrl.mongodbUrl, (connErr, db) => {
       if (connErr) throw connErr;
-      //Insert do payload do post, sem options e com callback
-      db.collection('clientes').insert(payload, null, (dbErr, result) => {
-        if (result.result.n > 0 && result.result.ok === 1) {
-          res.status(200).json({ response: { ok: result.result.ok, inserted: result.result.n } });
-        } else {
-          res.status(500).json({ repsonse: { ok: result.result.ok, data: "Transaction failed!" } });
-        }
+      //Verifica se tem um campo _id
+      if( payload.hasOwnProperty("_id") ){
+        db.collection("clientes").findOne({ "_id": payload._id }, (findErr, findResult) => {
+
+          if( findErr ){
+            res.status(500).json({response: 'erro', error: findErr});
+          }else if( findResult !== null ){
+            res.status(200).json({response: 'exists', data: findResult});
+          }else{
+            //Insert do payload do post, sem options e com callback
+            db.collection('clientes').insert(payload, null, (insertErr, result) => {
+              console.log('erro db insert cli', insertErr)
+              if ( insertErr ) {
+                res.status(500).json({ response: "error", error: insertErr });
+              }else if (result.result.n > 0 && result.result.ok === 1 && insertErr === null) {
+                res.status(200).json({ response: { ok: result.result.ok, inserted: result.result.n } });
+              } else {
+                res.status(500).json({ repsonse: { ok: result.result.ok, data: "Transaction failed!" } });
+              }
+              //FIM INSERT
+            });
+          }
+          db.close();
+        // FIM FIND ONE
+        });
+      }else{
+        res.status(400).json({response: 'Precisa de uma chave _id, que deve ser o CPF do cliente!'});
         db.close();
-      });
+      }
     });
   } catch (exception) {
     throw exception;
@@ -81,7 +128,7 @@ router.put('/atualizar', function (req, res) {
     const payload = req.body;
     console.log("put payload=",payload);
 
-    mongodbClient.connect(mongoUrl, (connErr, db) => {
+    mongodbClient.connect(mongoUrl.mongodbUrl, (connErr, db) => {
       if(connErr) throw connErr;
     //Faz update do cliente sem options e com callback
       if( payload.hasOwnProperty("_id") ){
@@ -95,7 +142,7 @@ router.put('/atualizar', function (req, res) {
               res.status(500).json({ response: 'Transaction failed!', data: updateErr });
             }else{
               res.status(200).json({ ok: result.result.ok, response: {
-                scanned: result.result.n, modified: result.result.nModified
+                scanned: result.result, modified: result.result.nModified
               } });
             }
             db.close();
@@ -111,5 +158,16 @@ router.put('/atualizar', function (req, res) {
     throw exception;
   }
 });
+
+// Tentar depois, ainda não deu certo e não é essencial para o MVP
+// router.get('/checar', (req, res) => {
+//   let queryObj = req.query;
+//   let checkingClass = new ActiveClients(`check/${queryObj.device}`, `localhost`, `check/response/+`);
+
+//   checkingClass.checkClients( (clientResponse) => {
+//     console.log("next já")
+//   });
+
+// });
 
 module.exports = router;

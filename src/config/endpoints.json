@@ -1,0 +1,6 @@
+{
+  "mongodbUrl" : "mongodb://mongocaio:m0ng0ldb*@clusteruno-shard-00-01-7t23t.mongodb.net:27017/petdevice?ssl=true&replicaSet=ClusterUno-shard-0&authSource=admin",
+  "mqttAws" : "ec2-54-197-172-138.compute-1.amazonaws.com",
+  "mqttLocal" : "localhost"
+}
+
