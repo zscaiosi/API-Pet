@@ -41,8 +41,8 @@ DietasDAO.prototype.checkDiets = function () {
 //Controlando o horário da alimentação para impedir que acione duas vezes no memso minuto o device
 							this._lastTime = horario;
 
-							let qtde_aberturas = item.porcao/100;
-							let tempo_abertura = item.porcao/100;
+							let qtde_aberturas = item.qtde_racao/100;
+							let tempo_abertura = item.qtde_racao/100;
 
 							let mqttPub = new MqttPubsController(mqttUrl, `pote/racao/${item.device}/alimentar`);
 							mqttPub.pub(`pote/racao/${item.device}/alimentar`, JSON.stringify({ alimentar: { aberto: true, tempo_abertura, qtde_aberturas } }), item.device);

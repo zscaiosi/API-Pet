@@ -9,14 +9,14 @@ let config = require('./config/express');
 let endpoint = require('./config/endpoints.json');
 const ActiveClients = require('./model/ActiveClients');
 var app = config();
-
+const Cliente = require("./model/Cliente");
 //Instancia os subscribers logo no início
 let mqttSubFeed = new MqttSubsController(endpoint.mqttAws, 'pote/racao/+/atividades');
 
 const diets = new DietasDAO();
 diets.checkDiets();
 
-setInterval(() => {diets.checkDiets()}, 10000);
+setInterval(() => {diets.checkDiets()}, 18000);
 
 app.listen(8581, function () {
   console.log('Servidor rodando! em:', 8581);
