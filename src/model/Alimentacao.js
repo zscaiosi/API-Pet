@@ -9,7 +9,7 @@ function Alimentacao(idDevice) {
 Alimentacao.prototype.feed = function (next) {
 
   const mqttClient = new MqttPubsController(mqttAws, `pote/racao/${this._idDevice}/alimentar`);
-  mqttClient.pub(`pote/racao/${this._idDevice}/alimentar`, "{\"aberto\": true, \"qtde_abrir\": 1}", "28864b");
+  mqttClient.pub(`pote/racao/${this._device}/alimentar`, "{\"aberto\": true, \"qtde_abrir\": 1}", this._device);
 
   let date = new Date();
   let data = date.getFullYear()+"-"+(date.getMonth()+1)+"-"+date.getDate();
@@ -18,7 +18,7 @@ Alimentacao.prototype.feed = function (next) {
   mongodbClient.connect(mongodbUrl, (connErr, db) => {
     console.log("------connected------", this._device);
     if (connErr) {
-      console.log("Connction error", connErr);       
+      console.log("Connection error", connErr);       
     }else{
 
       db.collection("devices").updateOne({ _id: this._device },

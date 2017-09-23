@@ -16,7 +16,7 @@ let mqttSubFeed = new MqttSubsController(endpoint.mqttAws, 'pote/racao/+/ativida
 const diets = new DietasDAO();
 diets.checkDiets();
 
-setInterval(() => {diets.checkDiets()}, 18000);
+setInterval(() => {diets.checkDiets()}, 10000);
 
 app.listen(8581, function () {
   console.log('Servidor rodando! em:', 8581);
