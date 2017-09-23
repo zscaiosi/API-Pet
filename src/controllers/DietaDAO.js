@@ -29,14 +29,19 @@ DietasDAO.prototype.checkDiets = function () {
 					let date_end = new Date(...end);
 					let today = new Date();
 
-					console.log("now", new Date()+"\n");
+					// console.log("now", new Date()+"\n");
 					
-					console.log("\n date_ini", Date.parse(date_ini), "\n today", Date.parse(today), "\n date_end", Date.parse(date_end));
-					console.log("\n date_ini < today", Date.parse(date_ini) < Date.parse(today), "date_end > today", Date.parse(date_end) > Date.parse(today));
+					// console.log("\n date_ini", Date.parse(date_ini), "\n today", Date.parse(today), "\n date_end", Date.parse(date_end));
+					// console.log("\n date_ini < today", Date.parse(date_ini) < Date.parse(today), "date_end > today", Date.parse(date_end) > Date.parse(today));
 
 					item.horarios.map((horario, index) => {
+						let horario_now = now.toTimeString();
+						let horario_feed = horario;
+
+						console.log("****Now, feed***", String(now.toTimeString()).slice(0, 5), String(horario).slice(0, 5));
+
 //Se hora e minutos forem iguais e último horário de alimentação for diferente da hora atual, alimenta.
-						if( horario.slice(0, 5) === String(now).slice(16, 21) && String(this._lastTime).slice(0, 5) !== String(now).slice(16, 21) ){
+						if( horario.slice(0, 5) === String(now.toTimeString()).slice(0, 5) && String(this._lastTime).slice(0, 5) !== String(now.toTimeString()).slice(0, 5) ){
 							console.log("----------alimentar!------------", horario.slice(0, 5), String(now).slice(16, 21));
 //Controlando o horário da alimentação para impedir que acione duas vezes no memso minuto o device
 							this._lastTime = horario;
@@ -65,9 +70,14 @@ DietasDAO.prototype.registerActivity = function (deviceId, activityJson) {
 		mongodbClient.connect(mongoUrl, function (connErr, db) {
 			if (connErr) throw connErr;
 
-			console.log(deviceId, activityJson);
+			console.log("***",deviceId, activityJson, new Date().toTimeString().slice(0, 5) );
+			
+
+			activityJson = Object.assign(activityJson, {horario: new Date().toTimeString().slice(0, 5)});
+			console.log("----------", activityJson)
 
 			if( typeof deviceId !== 'undefined' && typeof activityJson !== 'undefined' ){
+				
 				db.collection("devices").updateOne({ _id: deviceId },
 					{
 						$push: {

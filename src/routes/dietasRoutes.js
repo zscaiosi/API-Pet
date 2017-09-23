@@ -133,8 +133,8 @@ router.put('/atualizar', function (req, res) {
 
     mongodbClient.connect(mongoUrl.mongodbUrl, (connErr, db) => {
       if(connErr) throw connErr;
-    //Faz update do cliente sem options e com callback
-      if( payload.hasOwnProperty("_id") ){
+    //Faz update da dieta
+      if( payload.hasOwnProperty("_id") && payload.hasOwnProperty("device") ){
         db.collection('dietas').updateOne({_id: payload._id},
           {
             $set: payload
