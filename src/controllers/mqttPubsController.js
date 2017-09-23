@@ -24,15 +24,15 @@ function MqttPubsController(url, t) {
 }
 
 MqttPubsController.prototype.pub = function (t, message, deviceId) {
-
+console.log("AMAZON MQTT", this.url, t);
 	this.mqttClient.publish(t, message, null, (pubErr) => {
-		if (pubErr) { console.log(pubErr); }
+		if (pubErr) { console.log("pubErr", pubErr); }
 
 		let logObj = {
 			topic: t,
 			message: message,
 			date: new Date()
-		}
+		};
 //Loga as mensagens publicadas RETIRAR COMMENT
 		fs.appendFile("/home/ubuntu/Documents/logs_mqtt_pubs_nodejs_petdevice.txt", JSON.stringify(logObj) + "\n", (appendErr) => {
 			if (appendErr) {
